@@ -666,8 +666,9 @@
       label.textContent = "Processing Payment...";
 
       if (selectedPayment === "paystack") {
-        // Initialize Paystack Inline Payment
-        const savedKey = localStorage.getItem("adepa_paystack_key") || "pk_test_dd43b5932d0f98be12dd893ef2d627c2f82110c7"; // sandbox key
+        // Configure your Paystack Public Key directly here
+        const PAYSTACK_PUBLIC_KEY = "pk_test_dd43b5932d0f98be12dd893ef2d627c2f82110c7"; 
+        const savedKey = localStorage.getItem("adepa_paystack_key") || PAYSTACK_PUBLIC_KEY;
         
         try {
           const handler = PaystackPop.setup({

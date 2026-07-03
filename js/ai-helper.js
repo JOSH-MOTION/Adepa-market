@@ -1,9 +1,12 @@
 // Adepa Market - client side AI Helper using Google Gemini API
 
+// Configure your Gemini API Key directly here
+const GEMINI_API_KEY = "AI_KEY";
+
 // 1. Get saved keys from localStorage
 function getAiApiKeys() {
   return {
-    gemini: localStorage.getItem("adepa_gemini_key") || ""
+    gemini: localStorage.getItem("adepa_gemini_key") || GEMINI_API_KEY
   };
 }
 

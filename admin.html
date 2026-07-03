@@ -77,44 +77,7 @@
       </div>
     </div>
 
-    <!-- API Keys Manager Settings Box -->
-    <section class="bg-white rounded-xl border border-warm-border p-6 space-y-4 shadow-sm">
-      <h3 class="font-display font-bold text-sm text-stone-900 border-b border-stone-100 pb-2 flex items-center gap-1.5">
-        <svg class="h-4 w-4 text-kente-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-        </svg>
-        <span>Developer Settings & API Credentials</span>
-      </h3>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="space-y-1">
-          <label class="text-[10px] font-bold text-stone-400 uppercase">Gemini API Key</label>
-          <input
-            id="key-gemini"
-            type="password"
-            placeholder="AI_KEY"
-            class="w-full bg-[#FAF9F5] border border-warm-border rounded px-3 py-1.5 text-xs focus:outline-none focus:bg-white"
-          />
-        </div>
-
-        <div class="space-y-1">
-          <label class="text-[10px] font-bold text-stone-400 uppercase">Paystack Public Key</label>
-          <input
-            id="key-paystack"
-            type="password"
-            placeholder="pk_test_..."
-            class="w-full bg-[#FAF9F5] border border-warm-border rounded px-3 py-1.5 text-xs focus:outline-none focus:bg-white"
-          />
-        </div>
-      </div>
-
-      <div class="flex justify-between items-center pt-2">
-        <span class="text-[10px] text-stone-400">Keys persist inside your browser's Local Storage for safety.</span>
-        <button id="save-keys-btn" class="bg-stone-charcoal hover:bg-stone-800 text-white text-[10px] font-bold px-4 py-1.5 rounded transition-all">
-          Save Settings
-        </button>
-      </div>
-    </section>
 
     <!-- Simulated Alerts -->
     <div id="admin-success-alert" class="hidden bg-green-50 border border-green-200 text-green-700 p-3 rounded-lg flex items-center gap-2 text-xs font-semibold animate-pulse">
@@ -272,19 +235,7 @@
   <!-- Admin Controller Logic -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      // 1. Populate credentials inputs
-      const geminiInput = document.getElementById("key-gemini");
-      const paystackInput = document.getElementById("key-paystack");
 
-      geminiInput.value = localStorage.getItem("adepa_gemini_key") || "";
-      paystackInput.value = localStorage.getItem("adepa_paystack_key") || "";
-
-      // Save credentials trigger
-      document.getElementById("save-keys-btn").addEventListener("click", () => {
-        localStorage.setItem("adepa_gemini_key", geminiInput.value.trim());
-        localStorage.setItem("adepa_paystack_key", paystackInput.value.trim());
-        CartManager.showToast("Settings and keys saved!");
-      });
 
       // 2. Populate vendor and category selectors
       const vendorSelect = document.getElementById("prod-vendor-select");

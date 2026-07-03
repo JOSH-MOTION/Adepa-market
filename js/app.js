@@ -943,36 +943,8 @@ function simulateLocalChatResponse(message) {
   return text;
 }
 
-// Dynamically load .env file from root on load (for static local deployment ease)
-async function loadEnvFile() {
-  try {
-    const response = await fetch(".env");
-    if (!response.ok) return;
-    const text = await response.text();
-    text.split("\n").forEach(line => {
-      const parts = line.split("=");
-      if (parts.length >= 2) {
-        const key = parts[0].trim();
-        const val = parts.slice(1).join("=").trim().replace(/^['"]|['"]$/g, "");
-        if (key === "GEMINI_API_KEY" && val) {
-          localStorage.setItem("adepa_gemini_key", val);
-        } else if (key === "PAYSTACK_PUBLIC_KEY" && val) {
-          localStorage.setItem("adepa_paystack_key", val);
-        }
-      }
-    });
-    console.log("[System] Loaded API credentials from root .env file successfully.");
-  } catch (e) {
-    // Silent fail if .env is missing (uses manually saved keys in localStorage)
-    console.warn("[System] Root .env not loaded or inaccessible, using saved browser keys.");
-  }
-}
-
 // Automatically render shared layout upon window load
-document.addEventListener("DOMContentLoaded", async () => {
-  // Load variables from .env
-  await loadEnvFile();
-
+document.addEventListener("DOMContentLoaded", () => {
   renderSharedComponents();
   
   // Simulated Google Analytics PageView event
