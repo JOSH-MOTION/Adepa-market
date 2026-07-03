@@ -37,7 +37,7 @@ GUIDELINES:
 async function chatAI(message, history = []) {
   const keys = getAiApiKeys();
   
-  if (keys.gemini) {
+  if (keys.gemini && keys.gemini !== "AI_KEY" && keys.gemini.trim() !== "") {
     try {
       const formattedHistory = [];
       // Translate standard message roles into Gemini content schema
@@ -286,22 +286,32 @@ function simulateLocalRecommendations(cartItems) {
 // Helper: Local Chat Fallback
 function simulateLocalChat(message) {
   const q = message.toLowerCase();
-  let text = "Akwaaba! I'm here to help. ";
+  let text = "";
 
-  if (q.includes("kente") || q.includes("cloth") || q.includes("stole") || q.includes("smock") || q.includes("fugu")) {
-    text += "We feature incredible textiles from *Kofi's Kente Krafts*, including the handwoven **Golden Heritage Kente Stole (299 GHS)** and the **Unisex Batakari Fugu Smock (420 GHS)**. Would you like to add one to your cart?";
+  if (q.includes("hello") || q.includes("hi") || q.includes("hey") || q.includes("good morning") || q.includes("good afternoon") || q.includes("akwaaba")) {
+    text = "Akwaaba! 🌸 Welcome to Adepa Market. I am doing great! How are you doing today? What beautiful artisan crafts can I help you find?";
+  } else if (q.includes("who are you") || q.includes("your name") || q.includes("what is you") || q.includes("what are you")) {
+    text = "I am the Adepa Assistant, your friendly client-side shopping guide. I can help you search our catalog of premium Ghanaian textiles, beads, shea products, and woven baskets!";
+  } else if (q.includes("how are you") || q.includes("doing")) {
+    text = "Medaase! I'm doing very well, feeling as bright as a handwoven Kente. How can I help you find some beautiful Ghanaian crafts today?";
+  } else if (q.includes("where are you") || q.includes("location") || q.includes("located") || q.includes("ghana")) {
+    text = "Adepa Market is proud to represent local Ghanaian artisans. We are based in Accra, Ghana, and we offer fast local delivery (Accra/Tema) and worldwide shipping to your doorstep!";
+  } else if (q.includes("paystack") || q.includes("payment") || q.includes("how to pay") || q.includes("momo") || q.includes("card")) {
+    text = "We offer secure online payments! You can pay using your Credit Card (Visa/Mastercard) or Mobile Money (MTN, Telecel, AT) directly through our secure checkout page via the Paystack Integration.";
+  } else if (q.includes("kente") || q.includes("cloth") || q.includes("stole") || q.includes("smock") || q.includes("fugu")) {
+    text = "We feature incredible textiles from *Kofi's Kente Krafts*, including the handwoven **Golden Heritage Kente Stole (299 GHS)** and the **Unisex Batakari Fugu Smock (420 GHS)**. Would you like to add one to your cart?";
   } else if (q.includes("bead") || q.includes("bracelet") || q.includes("earring") || q.includes("brass") || q.includes("jewelry")) {
-    text += "For jewelry, *Ama's Beads & Brass* crafts beautiful traditional pieces. Check out the **Krobo Powder Glass Bead Bracelet (120 GHS)** or the **Adinkra Symbol Brass Necklace (150 GHS)**. They make excellent statement pieces!";
+    text = "For jewelry, *Ama's Beads & Brass* crafts beautiful traditional pieces. Check out the **Krobo Powder Glass Bead Bracelet (120 GHS)** or the **Adinkra Symbol Brass Necklace (150 GHS)**. They make excellent statement pieces!";
   } else if (q.includes("shea") || q.includes("butter") || q.includes("soap") || q.includes("beauty")) {
-    text += "Our natural skincare comes from *Organic Shea Glow*. Their **Premium Raw Shea Butter (80 GHS)** and lemongrass-infused **Black Soap Lemongrass Wash (75 GHS)** are great for healthy skin!";
+    text = "Our natural skincare comes from *Organic Shea Glow*. Their **Premium Raw Shea Butter (80 GHS)** and lemongrass-infused **Black Soap Lemongrass Wash (75 GHS)** are great for healthy skin!";
   } else if (q.includes("basket") || q.includes("decor") || q.includes("home") || q.includes("bag")) {
-    text += "Our home décor pieces are woven by *Bolga Weavers Co.*. You will love the handwoven **Authentic Bolga Market Basket (250 GHS)** or the stylish **Bolga Leather Shoulder Bag (380 GHS)**.";
+    text = "Our home décor pieces are woven by *Bolga Weavers Co.*. You will love the handwoven **Authentic Bolga Market Basket (250 GHS)** or the stylish **Bolga Leather Shoulder Bag (380 GHS)**.";
   } else if (q.includes("shipping") || q.includes("deliver") || q.includes("cost") || q.includes("price")) {
-    text += "Delivery is 15 GHS for standard shipping in Accra (2-3 days), 35 GHS for express (24 hrs), and free if your order exceeds 500 GHS! For outside Accra, nationwide shipping is 50 GHS.";
+    text = "Delivery is 15 GHS for standard shipping in Accra (2-3 days), 35 GHS for express (24 hrs), and free if your order exceeds 500 GHS! For outside Accra, nationwide shipping is 50 GHS.";
   } else if (q.includes("return") || q.includes("refund") || q.includes("exchange")) {
-    text += "We offer returns within 14 days of delivery. Items must be unused, in their original condition and packaging. Medaase!";
+    text = "We offer returns within 14 days of delivery. Items must be unused, in their original condition and packaging. Medaase!";
   } else {
-    text += "I can tell you about our handcrafted Ghanaian goods! We have four main categories: **Fashion & Textiles**, **Jewelry & Beads**, **Home Décor**, and **Beauty Products**. What are you looking for today?";
+    text = "That's interesting! While I'm currently running in offline demonstration mode, I can tell you about our handcrafted Ghanaian goods. We have **Fashion & Textiles**, **Jewelry & Beads**, **Home Décor**, and **Beauty Products**. What are you looking for today?";
   }
   return text;
 }
