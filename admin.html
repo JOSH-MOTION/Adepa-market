@@ -86,23 +86,13 @@
         <span>Developer Settings & API Credentials</span>
       </h3>
 
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="space-y-1">
           <label class="text-[10px] font-bold text-stone-400 uppercase">Gemini API Key</label>
           <input
             id="key-gemini"
             type="password"
             placeholder="AI_KEY"
-            class="w-full bg-[#FAF9F5] border border-warm-border rounded px-3 py-1.5 text-xs focus:outline-none focus:bg-white"
-          />
-        </div>
-
-        <div class="space-y-1">
-          <label class="text-[10px] font-bold text-stone-400 uppercase">Claude API Key</label>
-          <input
-            id="key-claude"
-            type="password"
-            placeholder="ANTHROPIC_KEY"
             class="w-full bg-[#FAF9F5] border border-warm-border rounded px-3 py-1.5 text-xs focus:outline-none focus:bg-white"
           />
         </div>
@@ -237,10 +227,39 @@
           <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
           </svg>
-        </button>
       </form>
 
     </div>
+
+    <!-- Analytics Section -->
+    <section class="bg-white rounded-xl border border-warm-border p-6 space-y-4 shadow-sm">
+      <h3 class="font-display font-bold text-sm text-stone-900 border-b border-stone-100 pb-2 flex items-center gap-1.5">
+        <svg class="h-4 w-4 text-terracotta" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-linecap="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
+        </svg>
+        <span>Artisan Sales & Conversion Analytics (Simulated)</span>
+      </h3>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+        <div class="bg-[#FAF9F5] p-3 rounded-lg border border-warm-border">
+          <span class="text-[9px] text-stone-400 font-bold uppercase tracking-wider block">Total Sessions</span>
+          <span class="text-xl font-display font-black text-stone-850" id="analytics-sessions">0</span>
+        </div>
+        <div class="bg-[#FAF9F5] p-3 rounded-lg border border-warm-border">
+          <span class="text-[9px] text-stone-400 font-bold uppercase tracking-wider block">Completed Orders</span>
+          <span class="text-xl font-display font-black text-stone-850" id="analytics-orders">0</span>
+        </div>
+        <div class="bg-[#FAF9F5] p-3 rounded-lg border border-warm-border">
+          <span class="text-[9px] text-stone-400 font-bold uppercase tracking-wider block">Conversion Rate</span>
+          <span class="text-xl font-display font-black text-stone-850" id="analytics-conversion">0.00%</span>
+        </div>
+        <div class="bg-[#FAF9F5] p-3 rounded-lg border border-warm-border">
+          <span class="text-[9px] text-stone-400 font-bold uppercase tracking-wider block">Gross Revenue</span>
+          <span class="text-xl font-display font-black text-stone-850" id="analytics-revenue">GHS 0.00</span>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- Footer Shell Container -->
@@ -255,17 +274,14 @@
     document.addEventListener("DOMContentLoaded", () => {
       // 1. Populate credentials inputs
       const geminiInput = document.getElementById("key-gemini");
-      const claudeInput = document.getElementById("key-claude");
       const paystackInput = document.getElementById("key-paystack");
 
       geminiInput.value = localStorage.getItem("adepa_gemini_key") || "";
-      claudeInput.value = localStorage.getItem("adepa_claude_key") || "";
       paystackInput.value = localStorage.getItem("adepa_paystack_key") || "";
 
       // Save credentials trigger
       document.getElementById("save-keys-btn").addEventListener("click", () => {
         localStorage.setItem("adepa_gemini_key", geminiInput.value.trim());
-        localStorage.setItem("adepa_claude_key", claudeInput.value.trim());
         localStorage.setItem("adepa_paystack_key", paystackInput.value.trim());
         CartManager.showToast("Settings and keys saved!");
       });
@@ -373,6 +389,29 @@
           window.location.href = "index.html";
         }, 2200);
       });
+
+      // 5. Populate simulated analytics dashboard values
+      const orders = JSON.parse(localStorage.getItem("adepa_orders_db") || "[]");
+      const orderCount = orders.length;
+      const totalRevenue = orders.reduce((sum, o) => sum + (o.totals?.grandTotal || 0), 0);
+      
+      let sessions = Number(localStorage.getItem("adepa_sessions_count") || "0");
+      if (sessions === 0) {
+        sessions = Math.floor(120 + Math.random() * 60);
+        localStorage.setItem("adepa_sessions_count", sessions);
+      }
+      // If orders were placed, increment sessions so conversion rate works cleanly
+      if (orderCount > 0 && sessions <= orderCount) {
+        sessions = orderCount * 12;
+        localStorage.setItem("adepa_sessions_count", sessions);
+      }
+
+      const conversionRate = sessions > 0 ? ((orderCount / sessions) * 100).toFixed(2) : "0.00";
+      
+      document.getElementById("analytics-sessions").textContent = sessions;
+      document.getElementById("analytics-orders").textContent = orderCount;
+      document.getElementById("analytics-conversion").textContent = `${conversionRate}%`;
+      document.getElementById("analytics-revenue").textContent = `GHS ${totalRevenue.toFixed(2)}`;
     });
 
     function showAdminError(message) {

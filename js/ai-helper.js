@@ -1,10 +1,9 @@
-// Adepa Market - client side AI Helper using Gemini and Anthropic Claude APIs
+// Adepa Market - client side AI Helper using Google Gemini API
 
 // 1. Get saved keys from localStorage
 function getAiApiKeys() {
   return {
-    gemini: localStorage.getItem("adepa_gemini_key") || "",
-    claude: localStorage.getItem("adepa_claude_key") || ""
+    gemini: localStorage.getItem("adepa_gemini_key") || ""
   };
 }
 
@@ -28,7 +27,7 @@ GUIDELINES:
 - Keep your answers concise, engaging, and culturally warm. Use occasional Ghanaian expressions like 'Akwaaba' (Welcome) or 'Medaase' (Thank you) naturally.
 - Recommend specific products matching their requests. Always cite the vendor name.
 - If asked about something outside our catalog, politely redirect to our artisan products.
-- Do not mention that you are a language model or AI built by Google or Anthropic; you are simply the Adepa Market Assistant.`;
+- Do not mention that you are a language model or AI built by Google; you are simply the Adepa Market Assistant.`;
 }
 
 // 3. Main Chat API Handler
@@ -72,40 +71,6 @@ async function chatAI(message, history = []) {
     } catch (e) {
       console.error("Gemini Chat failed, falling back:", e);
     }
-  } else if (keys.claude) {
-    try {
-      // Direct call to Anthropic API endpoint (Note: direct client-side calls to Anthropic require cors headers or proxy, but we support it just in case)
-      const chatMessages = [
-        ...history.map(m => ({
-          role: m.role === "user" ? "user" : "assistant",
-          content: m.content
-        })),
-        { role: "user", content: message }
-      ];
-
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": keys.claude,
-          "anthropic-version": "2023-06-01",
-          "dangerously-allow-the-api-key-in-the-browser": "true"
-        },
-        body: JSON.stringify({
-          model: "claude-3-5-sonnet-20241022",
-          max_tokens: 400,
-          system: getSystemPrompt(),
-          messages: chatMessages
-        })
-      });
-
-      if (!response.ok) throw new Error("Claude API call failed");
-      const data = await response.json();
-      const text = data.content?.[0]?.text;
-      if (text) return text.trim();
-    } catch (e) {
-      console.error("Claude Chat failed, falling back:", e);
-    }
   }
 
   // Local rules-based simulation fallback
@@ -146,35 +111,6 @@ ${PRODUCTS.map((p) => `- ID: ${p.id}, Name: ${p.name}, Description: ${p.descript
       }
     } catch (e) {
       console.error("Gemini Search failed, falling back:", e);
-    }
-  } else if (keys.claude) {
-    try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": keys.claude,
-          "anthropic-version": "2023-06-01",
-          "dangerously-allow-the-api-key-in-the-browser": "true"
-        },
-        body: JSON.stringify({
-          model: "claude-3-5-sonnet-20241022",
-          max_tokens: 150,
-          messages: [{ role: "user", content: searchPrompt }]
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const text = data.content?.[0]?.text || "";
-        const jsonMatch = text.match(/\[[\s\S]*\]/);
-        if (jsonMatch) {
-          const ids = JSON.parse(jsonMatch[0]);
-          if (Array.isArray(ids)) return ids;
-        }
-      }
-    } catch (e) {
-      console.error("Claude Search failed, falling back:", e);
     }
   }
 

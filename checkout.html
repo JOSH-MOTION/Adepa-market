@@ -734,6 +734,9 @@
       try {
         const completedOrder = await DatabaseManager.addOrder(orderPayload);
         if (completedOrder) {
+          // Log simulated Analytics conversion event
+          console.log(`[Google Analytics] 💰 Conversion Event! Purchase completed successfully. Order ID: ${completedOrder.id}, Amount: GHS ${grandTotal.toFixed(2)}, Method: ${selectedPayment}`);
+
           // Setup simulated email triggers
           localStorage.setItem("adepa_new_order_email", JSON.stringify({
             orderId: completedOrder.id,

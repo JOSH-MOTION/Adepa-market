@@ -723,6 +723,10 @@ function renderFooter() {
             <span class="bg-stone-800 text-[9px] font-bold px-2 py-1 rounded text-stone-300">STRIPE</span>
             <span class="bg-stone-800 text-[9px] font-bold px-2 py-1 rounded text-stone-300">PAYSTACK</span>
           </div>
+          <p class="text-[10px] text-stone-400 flex items-center gap-1">
+            <svg class="h-3.5 w-3.5 text-green-500 fill-current" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.9C1.803 5.347 1.5 6.012 1.5 7v3.084c0 3.864 2.82 7.218 6.5 7.916 3.68-.698 6.5-4.052 6.5-7.916V7c0-.988-.302-1.653-.666-2.1A5.002 5.002 0 0010 3a5.002 5.002 0 00-7.834 1.9zM10 5a3 3 0 100 6 3 3 0 000-6z" clip-rule="evenodd" /></svg>
+            <span>🔒 Secured by 256-bit SSL connection</span>
+          </p>
         </div>
       </div>
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 border-t border-stone-800 mt-8 pt-6 flex flex-col sm:flex-row justify-between text-[10px] text-stone-500 gap-4">
@@ -939,14 +943,47 @@ function simulateLocalChatResponse(message) {
   return text;
 }
 
+// Dynamically load .env file from root on load (for static local deployment ease)
+async function loadEnvFile() {
+  try {
+    const response = await fetch(".env");
+    if (!response.ok) return;
+    const text = await response.text();
+    text.split("\n").forEach(line => {
+      const parts = line.split("=");
+      if (parts.length >= 2) {
+        const key = parts[0].trim();
+        const val = parts.slice(1).join("=").trim().replace(/^['"]|['"]$/g, "");
+        if (key === "GEMINI_API_KEY" && val) {
+          localStorage.setItem("adepa_gemini_key", val);
+        } else if (key === "PAYSTACK_PUBLIC_KEY" && val) {
+          localStorage.setItem("adepa_paystack_key", val);
+        }
+      }
+    });
+    console.log("[System] Loaded API credentials from root .env file successfully.");
+  } catch (e) {
+    // Silent fail if .env is missing (uses manually saved keys in localStorage)
+    console.warn("[System] Root .env not loaded or inaccessible, using saved browser keys.");
+  }
+}
+
 // Automatically render shared layout upon window load
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  // Load variables from .env
+  await loadEnvFile();
+
   renderSharedComponents();
   
+  // Simulated Google Analytics PageView event
+  const path = window.location.pathname.split('/').pop() || 'index.html';
+  console.log(`[Google Analytics] 📈 PageView Tracked: ${path}${window.location.search}`);
+  
   // Listen for storage updates to keep UI synchronized
-  window.addEventListener("cartUpdated", () => {
+  window.addEventListener("cartUpdated", (e) => {
     // Re-render Navbar to update badge count
     renderNavbar();
+    console.log(`[Google Analytics] 🛒 Cart Updated Event. Item count: ${CartManager.getCartItemsCount()}, total: GHS ${CartManager.getCartTotal().toFixed(2)}`);
   });
   window.addEventListener("authStateChanged", () => {
     // Re-render Navbar to reflect auth states
