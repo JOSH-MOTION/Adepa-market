@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart | Adepa Market</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'stone-charcoal': '#1c1917',
+            'kente-gold': '#e29c1d',
+            'kente-gold-dark': '#b8860b',
+            'terracotta': '#c84e27',
+            'warm-cream': '#faf9f5',
+            'warm-sand': '#f5ece1',
+            'warm-border': '#eae3d9',
+            'primary-indigo': '#1a153b',
+            'primary-indigo-light': '#2f2563'
+          },
+          fontFamily: {
+            display: ['Playfair Display', 'Georgia', 'serif'],
+            sans: ['Plus Jakarta Sans', 'ui-sans-serif', 'system-ui']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/css">
+    body {
+      background-color: #faf9f5;
+      color: #1c1917;
+    }
+    .kente-pattern-soft {
+      background-color: #e29c1d;
+      background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        #c84e27 10px,
+        #c84e27 20px,
+        #1a153b 20px,
+        #1a153b 30px
+      );
+      opacity: 0.04;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #faf9f5;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #c84e27;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #9f3616;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans">
+
+  <!-- Navbar Shell Container -->
+  <div id="adepa-navbar-container"></div>
+
+  <!-- Main Body Content -->
+  <main class="flex-1 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    
+    <!-- Title -->
+    <div>
+      <h1 class="font-display font-black text-2xl sm:text-3xl text-stone-900 leading-tight">Shopping Cart</h1>
+      <p class="text-xs text-stone-400 mt-1">Review and manage your selected handcrafted products.</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="cart-empty" class="hidden text-center py-20 bg-white rounded-xl border border-warm-border p-6 shadow-sm">
+      <svg class="h-10 w-10 text-stone-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+      </svg>
+      <h2 class="text-base font-bold text-stone-850">Your cart is empty</h2>
+      <p class="text-xs text-stone-400 mt-1">Explore our unique categories and support local artisans.</p>
+      <a href="index.html" class="mt-4 inline-block bg-stone-charcoal text-white px-6 py-2 rounded text-xs font-bold shadow-md">
+        Continue Shopping
+      </a>
+    </div>
+
+    <!-- Cart Layout Grid -->
+    <div id="cart-grid" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Cart Items List -->
+      <div class="lg:col-span-2 space-y-4" id="cart-items-container"></div>
+
+      <!-- Order Summary Column -->
+      <div class="lg:col-span-1 space-y-6">
+        <div class="bg-white rounded-xl p-5 border border-warm-border space-y-4 shadow-sm">
+          <h3 class="font-display font-bold text-sm text-stone-900 border-b border-stone-100 pb-2">
+            Order Summary
+          </h3>
+          
+          <div class="border-b border-stone-100 pb-3 space-y-2 text-xs">
+            <div class="flex justify-between text-stone-500">
+              <span>Subtotal</span>
+              <span class="font-bold text-stone-800" id="cart-subtotal">GHS 0.00</span>
+            </div>
+            
+            <div class="space-y-1">
+              <label class="text-[10px] font-bold text-stone-400 uppercase">Estimated Shipping Region</label>
+              <select id="shipping-city-select" class="w-full bg-[#FAF9F5] border border-warm-border rounded p-1.5 text-xs focus:outline-none font-bold">
+                <option value="accra">Accra / Tema (15 GHS)</option>
+                <option value="nationwide">Nationwide Ghana (35 GHS)</option>
+              </select>
+            </div>
+
+            <div class="flex justify-between text-stone-500 pt-1">
+              <span>Delivery Cost</span>
+              <span class="font-bold text-stone-800" id="cart-shipping">GHS 15.00</span>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-baseline text-stone-900">
+            <span class="text-xs font-bold">Grand Total</span>
+            <span class="font-display font-black text-lg" id="cart-grandtotal">GHS 0.00</span>
+          </div>
+
+          <div class="pt-2">
+            <a href="checkout.html" class="w-full bg-stone-charcoal hover:bg-stone-850 text-white py-2.5 rounded font-bold text-xs shadow flex items-center justify-center gap-1.5 transition-colors">
+              <span>Proceed to Checkout</span>
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="bg-[#FAF9F5] border border-warm-border rounded-lg p-3 text-[10px] text-stone-500 leading-relaxed">
+          <span class="font-bold uppercase block text-stone-700">Artisan Delivery Notes</span>
+          Orders exceeding 500 GHS qualify for <strong class="text-terracotta">FREE</strong> shipping within Accra and Tema. All items are packaged carefully by respective local workshops.
+        </div>
+      </div>
+    </div>
+
+    <!-- AI complementary recommendations Section -->
+    <section id="ai-recs-section" class="hidden space-y-4">
+      <div class="flex items-center gap-2">
+        <h3 class="text-sm font-bold uppercase tracking-wider text-stone-400">Complete Your Collection</h3>
+        <span class="inline-flex items-center gap-1 bg-gradient-to-r from-terracotta to-kente-gold text-white text-[9px] font-bold px-2 py-0.5 rounded shadow-sm">
+          <svg class="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+          </svg>
+          AI Recommendations
+        </span>
+      </div>
+
+      <div id="ai-recs-loading" class="flex flex-col items-center py-6">
+        <div class="w-6 h-6 border-2 border-stone-200 border-t-terracotta rounded-full animate-spin"></div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 hidden" id="ai-recs-container"></div>
+    </section>
+
+  </main>
+
+  <!-- Footer Shell Container -->
+  <div id="adepa-footer-container"></div>
+
+  <!-- Chatbot Shell Container -->
+  <div id="adepa-chatbot-container"></div>
+
+  <!-- Shared Application Scripts -->
+  <script src="js/app.js"></script>
+  <script src="js/ai-helper.js"></script>
+
+  <!-- Cart Page Logic -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      renderCartView();
+
+      document.getElementById("shipping-city-select").addEventListener("change", () => {
+        calculateTotals();
+      });
+
+      // Synchronize with layout notifications
+      window.addEventListener("cartUpdated", () => {
+        renderCartView();
+      });
+    });
+
+    async function renderCartView() {
+      const cart = CartManager.getCart();
+      const emptyState = document.getElementById("cart-empty");
+      const gridState = document.getElementById("cart-grid");
+      const recsSection = document.getElementById("ai-recs-section");
+
+      if (cart.length === 0) {
+        emptyState.classList.remove("hidden");
+        gridState.classList.add("hidden");
+        recsSection.classList.add("hidden");
+        return;
+      }
+
+      emptyState.classList.add("hidden");
+      gridState.classList.remove("hidden");
+      recsSection.classList.remove("hidden");
+
+      // Render items
+      const itemsContainer = document.getElementById("cart-items-container");
+      itemsContainer.innerHTML = "";
+
+      cart.forEach(item => {
+        const prod = item.product;
+        const displayPrice = prod.promoPrice ?? prod.price;
+        
+        const itemRow = document.createElement("div");
+        itemRow.className = "bg-white rounded-xl border border-warm-border p-4 sm:p-5 flex gap-4 items-center";
+        
+        itemRow.innerHTML = `
+          <img src="${prod.image}" alt="${prod.name}" class="h-16 w-16 sm:h-20 sm:w-20 rounded-lg object-cover bg-stone-50 border border-stone-100 shrink-0" />
+          
+          <div class="flex-1 min-w-0 space-y-1">
+            <span class="text-[9px] text-stone-400 font-bold uppercase tracking-wider">${prod.category}</span>
+            <h4 class="font-display font-bold text-xs sm:text-sm text-stone-850 truncate">
+              <a href="product.html?id=${prod.id}">${prod.name}</a>
+            </h4>
+            <span class="text-[9px] text-stone-400 block font-medium">by ${prod.vendor}</span>
+            
+            <button class="remove-btn text-red-500 hover:text-red-700 text-[10px] font-bold block pt-1 flex items-center gap-0.5">
+              <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span>Remove</span>
+            </button>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center gap-4 shrink-0">
+            <!-- Qty selector -->
+            <div class="flex items-center border border-warm-border rounded bg-stone-50 p-0.5">
+              <button class="qty-dec w-6 h-6 flex items-center justify-center font-bold text-stone-600 hover:bg-stone-200 text-xs">-</button>
+              <span class="qty-num w-6 text-center font-bold text-xs text-stone-800">${item.quantity}</span>
+              <button class="qty-inc w-6 h-6 flex items-center justify-center font-bold text-stone-600 hover:bg-stone-200 text-xs">+</button>
+            </div>
+            
+            <!-- Price -->
+            <span class="font-display font-black text-xs sm:text-sm text-stone-900 w-24 text-right">
+              GHS ${(displayPrice * item.quantity).toFixed(2)}
+            </span>
+          </div>
+        `;
+
+        // Event listeners
+        itemRow.querySelector(".qty-dec").addEventListener("click", () => {
+          CartManager.updateQuantity(prod.id, item.quantity - 1);
+        });
+
+        itemRow.querySelector(".qty-inc").addEventListener("click", () => {
+          CartManager.updateQuantity(prod.id, item.quantity + 1);
+        });
+
+        itemRow.querySelector(".remove-btn").addEventListener("click", () => {
+          CartManager.removeFromCart(prod.id);
+        });
+
+        itemsContainer.appendChild(itemRow);
+      });
+
+      calculateTotals();
+      
+      // Load AI recommendations asynchronously
+      loadAIRecommendations(cart);
+    }
+
+    function calculateTotals() {
+      const subtotal = CartManager.getCartTotal();
+      document.getElementById("cart-subtotal").textContent = `GHS ${subtotal.toFixed(2)}`;
+
+      const shippingSelect = document.getElementById("shipping-city-select");
+      let shippingCost = 15;
+      
+      if (shippingSelect.value === "nationwide") {
+        shippingCost = 35;
+      }
+
+      // Free shipping override
+      if (subtotal > 500 && shippingSelect.value === "accra") {
+        shippingCost = 0;
+      }
+
+      document.getElementById("cart-shipping").textContent = shippingCost === 0 ? "FREE" : `GHS ${shippingCost.toFixed(2)}`;
+
+      const grandTotal = subtotal + shippingCost;
+      document.getElementById("cart-grandtotal").textContent = `GHS ${grandTotal.toFixed(2)}`;
+    }
+
+    async function loadAIRecommendations(cartItems) {
+      const loading = document.getElementById("ai-recs-loading");
+      const container = document.getElementById("ai-recs-container");
+
+      loading.classList.remove("hidden");
+      container.classList.add("hidden");
+
+      try {
+        const payload = cartItems.map(item => ({ id: item.product.id, name: item.product.name }));
+        const recommendations = await window.getAIRecommendations(payload);
+        
+        container.innerHTML = "";
+        if (recommendations.length === 0) {
+          document.getElementById("ai-recs-section").classList.add("hidden");
+          return;
+        }
+
+        const liveProducts = getLiveProducts();
+        recommendations.forEach(rec => {
+          const product = liveProducts.find(p => p.id === rec.id);
+          if (!product) return;
+
+          const displayPrice = product.promoPrice ?? product.price;
+          const hasPromo = !!product.promoPrice;
+
+          const card = document.createElement("div");
+          card.className = "bg-white rounded-xl border border-warm-border p-4 flex flex-col justify-between hover:shadow-sm transition-all";
+          
+          card.innerHTML = `
+            <div class="space-y-2">
+              <div class="flex gap-3">
+                <img src="${product.image}" alt="${product.name}" class="h-12 w-12 rounded object-cover shrink-0" />
+                <div class="min-w-0">
+                  <h4 class="font-display font-bold text-xs text-stone-850 truncate">
+                    <a href="product.html?id=${product.id}">${product.name}</a>
+                  </h4>
+                  <span class="text-[9px] text-stone-400 block">by ${product.vendor}</span>
+                </div>
+              </div>
+              
+              <!-- Recommendation reasoning -->
+              <p class="text-[10px] text-stone-500 italic bg-[#FAF9F5] p-2 rounded leading-relaxed border border-stone-100">
+                "${rec.reason}"
+              </p>
+            </div>
+
+            <div class="pt-3 mt-3 border-t border-stone-100 flex justify-between items-center">
+              <div class="flex flex-col">
+                ${hasPromo ? `<span class="text-[8px] text-stone-400 line-through">GHS ${product.price.toFixed(2)}</span>` : ""}
+                <span class="font-display font-bold text-xs text-stone-900">GHS ${displayPrice.toFixed(2)}</span>
+              </div>
+              <button class="add-rec-btn bg-stone-50 hover:bg-[#FAF9F5] border border-warm-border text-[9px] font-bold px-3 py-1 rounded">
+                + Add
+              </button>
+            </div>
+          `;
+
+          card.querySelector(".add-rec-btn").addEventListener("click", () => {
+            CartManager.addToCart(product, 1);
+          });
+
+          container.appendChild(card);
+        });
+
+        loading.classList.add("hidden");
+        container.classList.remove("hidden");
+      } catch (err) {
+        console.error(err);
+        document.getElementById("ai-recs-section").classList.add("hidden");
+      }
+    }
+  </script>
+</body>
+</html>

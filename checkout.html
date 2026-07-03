@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout | Adepa Market</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Paystack Inline SDK -->
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'stone-charcoal': '#1c1917',
+            'kente-gold': '#e29c1d',
+            'kente-gold-dark': '#b8860b',
+            'terracotta': '#c84e27',
+            'warm-cream': '#faf9f5',
+            'warm-sand': '#f5ece1',
+            'warm-border': '#eae3d9',
+            'primary-indigo': '#1a153b',
+            'primary-indigo-light': '#2f2563'
+          },
+          fontFamily: {
+            display: ['Playfair Display', 'Georgia', 'serif'],
+            sans: ['Plus Jakarta Sans', 'ui-sans-serif', 'system-ui']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/css">
+    body {
+      background-color: #faf9f5;
+      color: #1c1917;
+    }
+    .kente-pattern-soft {
+      background-color: #e29c1d;
+      background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        #c84e27 10px,
+        #c84e27 20px,
+        #1a153b 20px,
+        #1a153b 30px
+      );
+      opacity: 0.04;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #faf9f5;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #c84e27;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #9f3616;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans">
+
+  <!-- Navbar Shell Container -->
+  <div id="adepa-navbar-container"></div>
+
+  <!-- Main Body Content -->
+  <main class="flex-1 mx-auto max-w-5xl w-full px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    
+    <!-- Progress Indicator -->
+    <div class="bg-white border border-warm-border rounded-xl p-4 flex items-center justify-center gap-4 text-xs font-semibold">
+      <div class="flex items-center gap-1.5 step-indicator" id="ind-shipping">
+        <svg class="h-4 w-4 text-terracotta" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a3 3 0 100 6 3 3 0 000-6zm-9 0h9" />
+        </svg>
+        <span>Shipping</span>
+      </div>
+      <svg class="h-3 w-3 text-stone-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" /></svg>
+      <div class="flex items-center gap-1.5 text-stone-400 step-indicator" id="ind-payment">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+        </svg>
+        <span>Payment</span>
+      </div>
+      <svg class="h-3 w-3 text-stone-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" /></svg>
+      <div class="flex items-center gap-1.5 text-stone-400 step-indicator" id="ind-review">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <span>Review & Order</span>
+      </div>
+    </div>
+
+    <!-- Main Checkout View -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Left side Form Fields -->
+      <div class="lg:col-span-2 bg-white rounded-xl border border-warm-border p-6 space-y-6">
+        
+        <!-- STEP 1: SHIPPING FORM -->
+        <div id="step-shipping-panel" class="space-y-6">
+          <div>
+            <h2 class="font-display font-black text-lg text-stone-900">Shipping Details</h2>
+            <p class="text-[10px] text-stone-400 mt-0.5">Specify delivery location in Ghana.</p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="space-y-1">
+              <label class="text-[10px] font-bold text-stone-400 uppercase">Full Name</label>
+              <input
+                id="ship-name"
+                type="text"
+                placeholder="e.g. Ama Serwaa"
+                class="w-full bg-[#FAF9F5] border border-warm-border rounded-lg px-3 py-2 text-xs focus:outline-none focus:bg-white"
+              />
+              <span id="err-name" class="text-[9px] text-red-500 font-semibold hidden"></span>
+            </div>
+
+            <div class="space-y-1">
+              <label class="text-[10px] font-bold text-stone-400 uppercase">Email Address</label>
+              <input
+                id="ship-email"
+                type="email"
+                placeholder="name@domain.com"
+                class="w-full bg-[#FAF9F5] border border-warm-border rounded-lg px-3 py-2 text-xs focus:outline-none focus:bg-white"
+              />
+              <span id="err-email" class="text-[9px] text-red-500 font-semibold hidden"></span>
+            </div>
+
+            <div class="space-y-1">
+              <label class="text-[10px] font-bold text-stone-400 uppercase">Phone Number</label>
+              <input
+                id="ship-phone"
+                type="text"
+                placeholder="e.g. 0501234567"
+                class="w-full bg-[#FAF9F5] border border-warm-border rounded-lg px-3 py-2 text-xs focus:outline-none focus:bg-white"
+              />
+              <span id="err-phone" class="text-[9px] text-red-500 font-semibold hidden"></span>
+            </div>
+
+            <div class="space-y-1">
+              <label class="text-[10px] font-bold text-stone-400 uppercase">City</label>
+              <select
+                id="ship-city"
+                class="w-full bg-[#FAF9F5] border border-warm-border rounded-lg px-3 py-2 text-xs focus:outline-none focus:bg-white font-bold"
+              >
+                <option value="Accra">Accra (15 GHS)</option>
+                <option value="Tema">Tema (15 GHS)</option>
+                <option value="Kumasi">Kumasi (35 GHS)</option>
+                <option value="Tamale">Tamale (35 GHS)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-[10px] font-bold text-stone-400 uppercase">Address</label>
+            <textarea
+              id="ship-address"
+              rows="2"
+              placeholder="Oxford Street, House No..."
+              class="w-full bg-[#FAF9F5] border border-warm-border rounded-lg px-3 py-2 text-xs focus:outline-none focus:bg-white"
+            ></textarea>
+            <span id="err-address" class="text-[9px] text-red-500 font-semibold hidden"></span>
+          </div>
+
+          <button
+            id="btn-to-payment"
+            class="w-full bg-stone-charcoal hover:bg-stone-800 text-white py-2.5 rounded font-bold text-xs shadow flex items-center justify-center gap-1.5"
+          >
+            <span>Continue to Payment</span>
+            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- STEP 2: PAYMENT METHOD PANEL -->
+        <div id="step-payment-panel" class="hidden space-y-6">
+          <div>
+            <h2 class="font-display font-black text-lg text-stone-900">Payment Method</h2>
+            <p class="text-[10px] text-stone-400 mt-0.5">Select your preferred payment gateway.</p>
+          </div>
+
+          <div class="grid grid-cols-3 gap-4">
+            <!-- Paystack Option (Recommended) -->
+            <button
+              id="pay-opt-paystack"
+              class="p-3 rounded-lg border text-center flex flex-col items-center gap-1 transition-all border-stone-charcoal bg-stone-50/50 text-stone-900 shadow-sm ring-1 ring-stone-charcoal"
+            >
+              <svg class="h-5 w-5 text-terracotta" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+              </svg>
+              <span class="text-[10px] font-bold">Paystack (GHS)</span>
+            </button>
+
+            <!-- Stripe Card Option -->
+            <button
+              id="pay-opt-stripe"
+              class="p-3 rounded-lg border text-center flex flex-col items-center gap-1 transition-all border-warm-border bg-white text-stone-400 hover:bg-stone-50"
+            >
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+              <span class="text-[10px] font-bold">Stripe Card</span>
+            </button>
+
+            <!-- MoMo Option -->
+            <button
+              id="pay-opt-momo"
+              class="p-3 rounded-lg border text-center flex flex-col items-center gap-1 transition-all border-warm-border bg-white text-stone-400 hover:bg-stone-50"
+            >
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              <span class="text-[10px] font-bold">Mobile Money</span>
+            </button>
+          </div>
+
+          <!-- Stripe Card Form Fields -->
+          <div id="stripe-form" class="hidden bg-[#FAF9F5] p-4 rounded-lg border border-warm-border space-y-3">
+            <span class="text-[9px] bg-stone-200 text-stone-600 px-2 py-0.5 rounded font-bold uppercase">Stripe Card (Simulation)</span>
+            <div class="space-y-1">
+              <label class="text-[10px] font-semibold text-stone-500">Card Number</label>
+              <input
+                id="stripe-card-num"
+                type="text"
+                maxlength="19"
+                placeholder="4242 4242 4242 4242"
+                class="w-full bg-white border border-warm-border rounded-lg px-3 py-2 text-xs focus:outline-none"
+              />
+              <span id="err-stripe-card" class="text-[9px] text-red-500 font-semibold hidden"></span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label class="text-[10px] font-semibold text-stone-500">Expiry (MM/YY)</label>
+                <input
+                  id="stripe-card-exp"
+                  type="text"
+                  maxlength="5"
+                  placeholder="12/28"
+                  class="w-full bg-white border border-warm-border rounded-lg px-3 py-2 text-xs focus:outline-none text-center"
+                />
+                <span id="err-stripe-exp" class="text-[9px] text-red-500 font-semibold hidden"></span>
+              </div>
+
+              <div class="space-y-1">
+                <label class="text-[10px] font-semibold text-stone-500">CVC</label>
+                <input
+                  id="stripe-card-cvc"
+                  type="text"
+                  maxlength="3"
+                  placeholder="123"
+                  class="w-full bg-white border border-warm-border rounded-lg px-3 py-2 text-xs focus:outline-none text-center"
+                />
+                <span id="err-stripe-cvc" class="text-[9px] text-red-500 font-semibold hidden"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- MoMo Form Fields -->
+          <div id="momo-form" class="hidden bg-[#FAF9F5] p-4 rounded-lg border border-warm-border space-y-3">
+            <span class="text-[9px] bg-amber-100 text-kente-gold-dark px-2 py-0.5 rounded font-bold uppercase">MoMo (Simulation)</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label class="text-[10px] font-semibold text-stone-500">Provider</label>
+                <select
+                  id="momo-provider"
+                  class="w-full bg-white border border-warm-border rounded-lg px-3 py-2 text-xs focus:outline-none font-bold"
+                >
+                  <option value="MTN MoMo">MTN Mobile Money</option>
+                  <option value="Telecel Cash">Telecel Cash</option>
+                  <option value="AT Money">AT Money</option>
+                </select>
+              </div>
+
+              <div class="space-y-1">
+                <label class="text-[10px] font-semibold text-stone-500">MoMo Number</label>
+                <input
+                  id="momo-number"
+                  type="text"
+                  maxlength="10"
+                  placeholder="e.g. 0244123456"
+                  class="w-full bg-white border border-warm-border rounded-lg px-3 py-2 text-xs focus:outline-none"
+                />
+                <span id="err-momo-num" class="text-[9px] text-red-500 font-semibold hidden"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Paystack details text -->
+          <div id="paystack-info-box" class="bg-[#FAF9F5] p-4 rounded-lg border border-warm-border text-xs leading-relaxed space-y-1 text-stone-500">
+            <span class="font-bold text-stone-700 block">Secure Paystack Gateway</span>
+            Clicking next will allow you to review the final details before launching the official secure checkout popup. Supports all Ghanaian MoMo networks and cards.
+          </div>
+
+          <div class="flex gap-4">
+            <button id="btn-back-to-shipping" class="flex-1 bg-stone-50 hover:bg-stone-100 border border-warm-border py-2 rounded text-xs font-bold transition-all">
+              Back
+            </button>
+            <button id="btn-to-review" class="flex-1 bg-stone-charcoal hover:bg-stone-800 text-white py-2 rounded text-xs font-bold transition-all">
+              Review Order
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 3: REVIEW & ORDER PANEL -->
+        <div id="step-review-panel" class="hidden space-y-6">
+          <div>
+            <h2 class="font-display font-black text-lg text-stone-900">Review & Place Order</h2>
+            <p class="text-[10px] text-stone-400 mt-0.5">Please confirm all details before payment.</p>
+          </div>
+
+          <div class="border border-warm-border rounded-lg p-4 space-y-3 text-xs bg-[#FAF9F5]">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <h4 class="font-bold text-stone-400 uppercase tracking-wide">Shipping Address</h4>
+                <p class="font-bold mt-1" id="rev-shipping-name"></p>
+                <p id="rev-shipping-address"></p>
+                <p id="rev-shipping-city"></p>
+              </div>
+              <div>
+                <h4 class="font-bold text-stone-400 uppercase tracking-wide">Payment Details</h4>
+                <p class="font-bold mt-1" id="rev-payment-method"></p>
+                <p class="text-stone-500" id="rev-payment-details"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-4">
+            <button id="btn-back-to-payment" class="flex-1 bg-stone-50 hover:bg-stone-100 border border-warm-border py-2 rounded text-xs font-bold">
+              Back
+            </button>
+            <button id="btn-place-order" class="flex-1 bg-stone-charcoal hover:bg-stone-850 text-white py-2 rounded text-xs font-bold flex items-center justify-center gap-1">
+              <span id="order-btn-text">Pay & Place Order</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Order Summary Panel -->
+      <div class="lg:col-span-1 space-y-6">
+        <div class="bg-white rounded-xl p-5 border border-warm-border space-y-4 shadow-sm">
+          <h3 class="font-display font-bold text-sm text-stone-900 border-b border-stone-100 pb-2">
+            Order Items
+          </h3>
+
+          <div class="space-y-2 max-h-40 overflow-y-auto pr-1" id="checkout-items-list"></div>
+
+          <div class="border-t border-stone-100 pt-3 space-y-2 text-xs">
+            <div class="flex justify-between text-stone-400">
+              <span>Subtotal</span>
+              <span class="font-bold text-stone-800" id="checkout-subtotal">GHS 0.00</span>
+            </div>
+            <div class="flex justify-between text-stone-400">
+              <span>Delivery</span>
+              <span class="font-bold text-stone-800" id="checkout-shipping">GHS 0.00</span>
+            </div>
+            <div class="border-t border-stone-100 pt-2 flex justify-between text-stone-900">
+              <span class="font-bold">Total</span>
+              <span class="font-display font-black text-sm text-stone-900" id="checkout-grandtotal">GHS 0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-[#FAF9F5] border border-warm-border rounded-lg p-3 text-[10px] text-stone-500">
+          <span class="font-bold uppercase block text-stone-700">Sandbox Test Details</span>
+          For simulated Stripe Cards, use <code class="bg-stone-200 px-1 py-0.5 rounded">4242 4242 4242 4242</code>. For simulated Paystack sandbox, any test credentials on the popup are supported.
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer Shell Container -->
+  <div id="adepa-footer-container"></div>
+
+  <!-- Shared Application Scripts -->
+  <script src="js/app.js"></script>
+
+  <!-- Checkout Logic -->
+  <script>
+    let activeStep = "shipping";
+    let selectedPayment = "paystack"; // default Paystack
+    let shippingForm = {};
+    let subtotal = 0;
+    let shippingCost = 15;
+    let grandTotal = 0;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const cart = CartManager.getCart();
+      if (cart.length === 0) {
+        window.location.href = "cart.html";
+        return;
+      }
+
+      // Populate user info if logged in
+      const user = AuthManager.getCurrentUser();
+      if (user) {
+        document.getElementById("ship-name").value = user.displayName || "";
+        document.getElementById("ship-email").value = user.email || "";
+      }
+
+      subtotal = CartManager.getCartTotal();
+      renderSummary();
+
+      // Navigation triggers
+      document.getElementById("btn-to-payment").addEventListener("click", () => {
+        if (validateShipping()) {
+          activeStep = "payment";
+          togglePanels();
+        }
+      });
+
+      document.getElementById("btn-back-to-shipping").addEventListener("click", () => {
+        activeStep = "shipping";
+        togglePanels();
+      });
+
+      document.getElementById("btn-to-review").addEventListener("click", () => {
+        if (validatePayment()) {
+          activeStep = "review";
+          togglePanels();
+          populateReview();
+        }
+      });
+
+      document.getElementById("btn-back-to-payment").addEventListener("click", () => {
+        activeStep = "payment";
+        togglePanels();
+      });
+
+      document.getElementById("btn-place-order").addEventListener("click", () => {
+        executeCheckoutPayment();
+      });
+
+      // Payment option toggle
+      const paystackBtn = document.getElementById("pay-opt-paystack");
+      const stripeBtn = document.getElementById("pay-opt-stripe");
+      const momoBtn = document.getElementById("pay-opt-momo");
+
+      const stripeForm = document.getElementById("stripe-form");
+      const momoForm = document.getElementById("momo-form");
+      const paystackInfo = document.getElementById("paystack-info-box");
+
+      const resetActiveOptions = () => {
+        [paystackBtn, stripeBtn, momoBtn].forEach(btn => {
+          btn.className = "p-3 rounded-lg border text-center flex flex-col items-center gap-1 transition-all border-warm-border bg-white text-stone-400 hover:bg-stone-50";
+        });
+        [stripeForm, momoForm, paystackInfo].forEach(form => form.classList.add("hidden"));
+      };
+
+      paystackBtn.addEventListener("click", () => {
+        resetActiveOptions();
+        selectedPayment = "paystack";
+        paystackBtn.className = "p-3 rounded-lg border text-center flex flex-col items-center gap-1 transition-all border-stone-charcoal bg-stone-50/50 text-stone-900 shadow-sm ring-1 ring-stone-charcoal";
+        paystackInfo.classList.remove("hidden");
+      });
+
+      stripeBtn.addEventListener("click", () => {
+        resetActiveOptions();
+        selectedPayment = "stripe";
+        stripeBtn.className = "p-3 rounded-lg border text-center flex flex-col items-center gap-1 transition-all border-stone-charcoal bg-stone-50/50 text-stone-900 shadow-sm ring-1 ring-stone-charcoal";
+        stripeForm.classList.remove("hidden");
+      });
+
+      momoBtn.addEventListener("click", () => {
+        resetActiveOptions();
+        selectedPayment = "momo";
+        momoBtn.className = "p-3 rounded-lg border text-center flex flex-col items-center gap-1 transition-all border-stone-charcoal bg-stone-50/50 text-stone-900 shadow-sm ring-1 ring-stone-charcoal";
+        momoForm.classList.remove("hidden");
+      });
+    });
+
+    function togglePanels() {
+      // Toggle progress bar styling
+      const indShipping = document.getElementById("ind-shipping");
+      const indPayment = document.getElementById("ind-payment");
+      const indReview = document.getElementById("ind-review");
+
+      indShipping.className = "flex items-center gap-1.5 text-stone-400";
+      indPayment.className = "flex items-center gap-1.5 text-stone-400";
+      indReview.className = "flex items-center gap-1.5 text-stone-400";
+
+      document.getElementById("step-shipping-panel").classList.add("hidden");
+      document.getElementById("step-payment-panel").classList.add("hidden");
+      document.getElementById("step-review-panel").classList.add("hidden");
+
+      if (activeStep === "shipping") {
+        indShipping.className = "flex items-center gap-1.5 text-stone-850";
+        document.getElementById("step-shipping-panel").classList.remove("hidden");
+      } else if (activeStep === "payment") {
+        indShipping.className = "flex items-center gap-1.5 text-stone-850";
+        indPayment.className = "flex items-center gap-1.5 text-stone-850";
+        document.getElementById("step-payment-panel").classList.remove("hidden");
+      } else if (activeStep === "review") {
+        indShipping.className = "flex items-center gap-1.5 text-stone-850";
+        indPayment.className = "flex items-center gap-1.5 text-stone-850";
+        indReview.className = "flex items-center gap-1.5 text-stone-850";
+        document.getElementById("step-review-panel").classList.remove("hidden");
+      }
+    }
+
+    function validateShipping() {
+      let valid = true;
+      const name = document.getElementById("ship-name").value.trim();
+      const email = document.getElementById("ship-email").value.trim();
+      const phone = document.getElementById("ship-phone").value.trim();
+      const address = document.getElementById("ship-address").value.trim();
+      const city = document.getElementById("ship-city").value;
+
+      // Reset errors
+      ["err-name", "err-email", "err-phone", "err-address"].forEach(id => {
+        document.getElementById(id).classList.add("hidden");
+      });
+
+      if (!name) {
+        const err = document.getElementById("err-name");
+        err.textContent = "Full name is required.";
+        err.classList.remove("hidden");
+        valid = false;
+      }
+      if (!email || !/\S+@\S+\.\S+/.test(email)) {
+        const err = document.getElementById("err-email");
+        err.textContent = "Valid email is required.";
+        err.classList.remove("hidden");
+        valid = false;
+      }
+      if (!phone || phone.length < 9) {
+        const err = document.getElementById("err-phone");
+        err.textContent = "Valid phone number required.";
+        err.classList.remove("hidden");
+        valid = false;
+      }
+      if (!address) {
+        const err = document.getElementById("err-address");
+        err.textContent = "Delivery address is required.";
+        err.classList.remove("hidden");
+        valid = false;
+      }
+
+      if (valid) {
+        shippingForm = { fullName: name, email, phone, city, address };
+        // Recalculate shipping cost based on city selection
+        shippingCost = subtotal > 500 && (city === "Accra" || city === "Tema") ? 0 : (city === "Accra" || city === "Tema" ? 15 : 35);
+        renderSummary();
+      }
+
+      return valid;
+    }
+
+    function validatePayment() {
+      let valid = true;
+
+      // Clear errors
+      ["err-stripe-card", "err-stripe-exp", "err-stripe-cvc", "err-momo-num"].forEach(id => {
+        document.getElementById(id).classList.add("hidden");
+      });
+
+      if (selectedPayment === "stripe") {
+        const cardNum = document.getElementById("stripe-card-num").value.replace(/\s/g, "");
+        const cardExp = document.getElementById("stripe-card-exp").value;
+        const cardCvc = document.getElementById("stripe-card-cvc").value;
+
+        if (!cardNum.match(/^\d{16}$/)) {
+          const err = document.getElementById("err-stripe-card");
+          err.textContent = "Valid 16 digit card is required.";
+          err.classList.remove("hidden");
+          valid = false;
+        }
+        if (!cardExp.match(/^\d{2}\/\d{2}$/)) {
+          const err = document.getElementById("err-stripe-exp");
+          err.textContent = "Expiry format must be MM/YY.";
+          err.classList.remove("hidden");
+          valid = false;
+        }
+        if (!cardCvc.match(/^\d{3}$/)) {
+          const err = document.getElementById("err-stripe-cvc");
+          err.textContent = "3 digit code is required.";
+          err.classList.remove("hidden");
+          valid = false;
+        }
+      } else if (selectedPayment === "momo") {
+        const momoNum = document.getElementById("momo-number").value.replace(/\s/g, "");
+        if (!momoNum.match(/^0\d{9}$/)) {
+          const err = document.getElementById("err-momo-num");
+          err.textContent = "Enter a valid 10 digit Mobile Money number.";
+          err.classList.remove("hidden");
+          valid = false;
+        }
+      }
+
+      return valid;
+    }
+
+    function populateReview() {
+      document.getElementById("rev-shipping-name").textContent = shippingForm.fullName;
+      document.getElementById("rev-shipping-address").textContent = shippingForm.address;
+      document.getElementById("rev-shipping-city").textContent = `${shippingForm.city}, Ghana`;
+
+      let methodText = "Paystack Checkout Gateway";
+      let detailsText = "Using secure credit card or mobile money payments.";
+
+      if (selectedPayment === "stripe") {
+        methodText = "Stripe Card Payment";
+        const card = document.getElementById("stripe-card-num").value;
+        detailsText = `Card ending in ${card.slice(-4)}`;
+      } else if (selectedPayment === "momo") {
+        methodText = "Mobile Money (Direct Simulation)";
+        const num = document.getElementById("momo-number").value;
+        const prov = document.getElementById("momo-provider").value;
+        detailsText = `${prov}: ${num}`;
+      }
+
+      document.getElementById("rev-payment-method").textContent = methodText;
+      document.getElementById("rev-payment-details").textContent = detailsText;
+    }
+
+    function renderSummary() {
+      document.getElementById("checkout-subtotal").textContent = `GHS ${subtotal.toFixed(2)}`;
+      document.getElementById("checkout-shipping").textContent = shippingCost === 0 ? "FREE" : `GHS ${shippingCost.toFixed(2)}`;
+      
+      grandTotal = subtotal + shippingCost;
+      document.getElementById("checkout-grandtotal").textContent = `GHS ${grandTotal.toFixed(2)}`;
+
+      // Render checkout items
+      const cart = CartManager.getCart();
+      const list = document.getElementById("checkout-items-list");
+      list.innerHTML = "";
+
+      cart.forEach(item => {
+        const price = item.product.promoPrice ?? item.product.price;
+        const div = document.createElement("div");
+        div.className = "flex justify-between items-center text-xs gap-3";
+        div.innerHTML = `
+          <div class="min-w-0 flex-1">
+            <p class="font-bold text-stone-850 truncate">${item.product.name}</p>
+            <p class="text-[9px] text-stone-400">Qty: ${item.quantity}</p>
+          </div>
+          <span class="font-bold text-stone-900 shrink-0">
+            GHS ${(price * item.quantity).toFixed(2)}
+          </span>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    // Checkout payment execution
+    function executeCheckoutPayment() {
+      const btn = document.getElementById("btn-place-order");
+      const label = document.getElementById("order-btn-text");
+
+      btn.disabled = true;
+      label.textContent = "Processing Payment...";
+
+      if (selectedPayment === "paystack") {
+        // Initialize Paystack Inline Payment
+        const savedKey = localStorage.getItem("adepa_paystack_key") || "pk_test_dd43b5932d0f98be12dd893ef2d627c2f82110c7"; // sandbox key
+        
+        try {
+          const handler = PaystackPop.setup({
+            key: savedKey,
+            email: shippingForm.email,
+            amount: Math.round(grandTotal * 100), // in pesewas/kobo
+            currency: 'GHS',
+            ref: 'AD-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+            callback: function(response) {
+              // On success redirect to database order add
+              handleOrderSubmit(`Paystack (${response.reference})`);
+            },
+            onClose: function() {
+              btn.disabled = false;
+              label.textContent = "Pay & Place Order";
+              alert("Payment gateway closed. Checkout aborted.");
+            }
+          });
+          handler.openIframe();
+        } catch (e) {
+          console.error("Paystack startup failed, running simulated order:", e);
+          // Auto fallback to mock checkout if network block or invalid SDK loading
+          setTimeout(() => {
+            handleOrderSubmit("Simulated Paystack Gateway Bypass");
+          }, 1500);
+        }
+      } else {
+        // Direct simulation (Stripe / direct MoMo)
+        setTimeout(() => {
+          let details = "Stripe Credit Card";
+          if (selectedPayment === "momo") {
+            const num = document.getElementById("momo-number").value;
+            const prov = document.getElementById("momo-provider").value;
+            details = `${prov} (${num})`;
+          }
+          handleOrderSubmit(details);
+        }, 1500);
+      }
+    }
+
+    async function handleOrderSubmit(paymentDetails) {
+      const cart = CartManager.getCart();
+      const orderPayload = {
+        items: cart.map((i) => ({
+          productId: i.product.id,
+          name: i.product.name,
+          quantity: i.quantity,
+          price: i.product.promoPrice ?? i.product.price,
+          vendor: i.product.vendor,
+        })),
+        shipping: shippingForm,
+        payment: {
+          method: selectedPayment,
+          details: paymentDetails,
+        },
+        totals: {
+          subtotal: subtotal,
+          shipping: shippingCost,
+          grandTotal: grandTotal,
+        },
+        status: "Processing",
+      };
+
+      try {
+        const completedOrder = await DatabaseManager.addOrder(orderPayload);
+        if (completedOrder) {
+          // Setup simulated email triggers
+          localStorage.setItem("adepa_new_order_email", JSON.stringify({
+            orderId: completedOrder.id,
+            email: shippingForm.email,
+            name: shippingForm.fullName,
+            total: grandTotal,
+            items: orderPayload.items
+          }));
+
+          CartManager.clearCart();
+          window.location.href = `order-confirmation.html?id=${completedOrder.id}`;
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Error saving order. Please retry checkout.");
+        const btn = document.getElementById("btn-place-order");
+        const label = document.getElementById("order-btn-text");
+        btn.disabled = false;
+        label.textContent = "Pay & Place Order";
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmation | Adepa Market</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'stone-charcoal': '#1c1917',
+            'kente-gold': '#e29c1d',
+            'kente-gold-dark': '#b8860b',
+            'terracotta': '#c84e27',
+            'warm-cream': '#faf9f5',
+            'warm-sand': '#f5ece1',
+            'warm-border': '#eae3d9',
+            'primary-indigo': '#1a153b',
+            'primary-indigo-light': '#2f2563'
+          },
+          fontFamily: {
+            display: ['Playfair Display', 'Georgia', 'serif'],
+            sans: ['Plus Jakarta Sans', 'ui-sans-serif', 'system-ui']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/css">
+    body {
+      background-color: #faf9f5;
+      color: #1c1917;
+    }
+    .kente-pattern-soft {
+      background-color: #e29c1d;
+      background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        #c84e27 10px,
+        #c84e27 20px,
+        #1a153b 20px,
+        #1a153b 30px
+      );
+      opacity: 0.04;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #faf9f5;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #c84e27;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #9f3616;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans">
+
+  <!-- Navbar Shell Container -->
+  <div id="adepa-navbar-container"></div>
+
+  <!-- Main Body Content -->
+  <main class="flex-1 mx-auto max-w-2xl w-full px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    
+    <!-- Loading spinner -->
+    <div id="order-loading" class="flex items-center justify-center py-20">
+      <div class="w-6 h-6 border-2 border-stone-200 border-t-terracotta rounded-full animate-spin"></div>
+    </div>
+
+    <!-- Error State -->
+    <div id="order-not-found" class="hidden text-center py-20 bg-white border border-warm-border rounded-xl p-6 space-y-4">
+      <svg class="h-10 w-10 text-red-500 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <div>
+        <h2 class="text-base font-bold text-stone-850">Order not found</h2>
+        <p class="text-xs text-stone-400 mt-1" id="missing-order-id-label">We couldn't locate this order</p>
+      </div>
+      <a href="index.html" class="inline-block bg-stone-charcoal text-white px-4 py-2 rounded text-xs font-bold shadow">
+        Back to Shop
+      </a>
+    </div>
+
+    <!-- Main Order Details Display -->
+    <div id="order-confirmation-content" class="hidden space-y-6">
+      
+      <!-- Simulated Email Confirmed Notification (Mockup style overlay) -->
+      <div id="simulated-email-box" class="hidden bg-stone-charcoal text-white rounded-xl p-5 border border-warm-border shadow-md space-y-3">
+        <div class="flex items-center justify-between border-b border-stone-800 pb-2">
+          <div class="flex items-center gap-1.5">
+            <svg class="h-4 w-4 text-kente-gold animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <h4 class="text-xs font-bold text-kente-gold">Simulated Email Confirmed</h4>
+          </div>
+          <button id="close-email-btn" class="text-[9px] bg-stone-800 px-2 py-0.5 rounded text-stone-300">
+            Close
+          </button>
+        </div>
+
+        <div class="bg-white text-stone-800 rounded-lg p-3.5 text-[11px] space-y-2">
+          <div class="border-b border-stone-100 pb-1.5 text-[9px] text-stone-400 font-mono">
+            <p>From: orders@adepamarket.com.gh</p>
+            <p id="email-to-label">To: </p>
+            <p id="email-subject-label">Subject: Adepa Market Order Confirmed • #</p>
+          </div>
+
+          <div class="space-y-1.5">
+            <p class="font-bold text-stone-900" id="email-hello-label">Hello ,</p>
+            <p class="leading-relaxed">
+              Your artisan order has been confirmed. Thank you for supporting local Ghanaian creators!
+            </p>
+            <p class="font-semibold text-stone-500" id="email-paid-label">Paid Amount: GHS </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tracking Card -->
+      <div class="bg-white rounded-xl border border-warm-border p-6 space-y-5">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-stone-100 pb-4 gap-3">
+          <div>
+            <span class="text-[9px] bg-[#FAF9F5] text-stone-400 border border-warm-border px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+              Order Tracking Status
+            </span>
+            <h2 class="font-display font-black text-xl text-stone-900 mt-1" id="order-id-title"></h2>
+          </div>
+
+          <button
+            id="cancel-order-btn"
+            class="hidden bg-red-50 hover:bg-red-100 text-red-700 border border-red-100 text-[10px] px-3.5 py-1.5 rounded font-bold transition-all"
+          >
+            Cancel Order
+          </button>
+
+          <span
+            id="order-cancelled-badge"
+            class="hidden bg-red-50 text-red-700 border border-red-100 text-[10px] px-3.5 py-1.5 rounded font-bold"
+          >
+            Cancelled
+          </span>
+        </div>
+
+        <!-- Progress Steps -->
+        <div id="tracking-steps-container" class="py-2">
+          <div class="relative flex items-center justify-between">
+            <div class="absolute left-0 right-0 h-0.5 bg-stone-100 -z-10">
+              <div class="h-full bg-terracotta transition-all duration-500" id="steps-bar" style="width: 0%;"></div>
+            </div>
+
+            <!-- step 0: Processing -->
+            <div class="flex flex-col items-center">
+              <div class="w-7 h-7 rounded-full flex items-center justify-center border bg-white border-stone-200 text-stone-400" id="step-0-dot">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <span class="text-[9px] font-bold mt-1 text-stone-400" id="step-0-label">Processing</span>
+            </div>
+
+            <!-- step 1: Shipped -->
+            <div class="flex flex-col items-center">
+              <div class="w-7 h-7 rounded-full flex items-center justify-center border bg-white border-stone-200 text-stone-400" id="step-1-dot">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a3 3 0 100 6 3 3 0 000-6zm-9 0h9" />
+                </svg>
+              </div>
+              <span class="text-[9px] font-bold mt-1 text-stone-400" id="step-1-label">Shipped</span>
+            </div>
+
+            <!-- step 2: Delivered -->
+            <div class="flex flex-col items-center">
+              <div class="w-7 h-7 rounded-full flex items-center justify-center border bg-white border-stone-200 text-stone-400" id="step-2-dot">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <span class="text-[9px] font-bold mt-1 text-stone-400" id="step-2-label">Delivered</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Details -->
+        <div class="space-y-4">
+          <h3 class="font-display font-bold text-base text-stone-900 border-b border-stone-100 pb-2">
+            Order Details
+          </h3>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-stone-600">
+            <div class="space-y-1">
+              <p class="font-bold text-stone-400 uppercase tracking-wide">Shipping Address</p>
+              <p class="text-stone-850 font-bold" id="order-ship-name"></p>
+              <p id="order-ship-address"></p>
+              <p id="order-ship-city"></p>
+            </div>
+
+            <div class="space-y-1">
+              <p class="font-bold text-stone-400 uppercase tracking-wide">Paid Summary</p>
+              <p class="text-stone-850 font-bold" id="order-pay-method"></p>
+              <p id="order-pay-details"></p>
+              <p class="font-bold text-stone-850 mt-1" id="order-grandtotal"></p>
+            </div>
+          </div>
+
+          <div class="border-t border-stone-100 pt-4 space-y-2">
+            <p class="font-display font-bold text-xs text-stone-850">Items Ordered</p>
+            <div class="space-y-2" id="order-items-list"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Back button -->
+      <div class="text-center">
+        <a href="index.html" class="inline-block border border-warm-border bg-white text-stone-600 hover:bg-[#FAF9F5] px-6 py-2 rounded text-xs font-bold shadow-sm transition-all">
+          Continue Shopping
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer Shell Container -->
+  <div id="adepa-footer-container"></div>
+
+  <!-- Chatbot Shell Container -->
+  <div id="adepa-chatbot-container"></div>
+
+  <!-- Shared Application Scripts -->
+  <script src="js/app.js"></script>
+  <script src="js/ai-helper.js"></script>
+
+  <!-- Confirmation Page Logic -->
+  <script>
+    let currentOrder = null;
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const orderId = urlParams.get("id");
+
+      if (!orderId) {
+        showError("Invalid Order Reference");
+        return;
+      }
+
+      currentOrder = await DatabaseManager.getOrder(orderId);
+      
+      document.getElementById("order-loading").classList.add("hidden");
+
+      if (!currentOrder) {
+        showError(`Order reference "${orderId}" could not be found.`);
+        return;
+      }
+
+      document.getElementById("order-confirmation-content").classList.remove("hidden");
+
+      // Render Order details
+      renderOrderDetails();
+
+      // Check simulated email
+      const savedEmail = localStorage.getItem("adepa_new_order_email");
+      if (savedEmail) {
+        const parsed = JSON.parse(savedEmail);
+        if (parsed.orderId === orderId) {
+          showSimulatedEmail(parsed);
+          localStorage.removeItem("adepa_new_order_email");
+        }
+      }
+
+      // Close email trigger
+      document.getElementById("close-email-btn").addEventListener("click", () => {
+        document.getElementById("simulated-email-box").classList.add("hidden");
+      });
+
+      // Cancel Order trigger
+      document.getElementById("cancel-order-btn").addEventListener("click", async () => {
+        if (confirm("Are you sure you want to cancel your artisan order?")) {
+          document.getElementById("order-loading").classList.remove("hidden");
+          document.getElementById("order-confirmation-content").classList.add("hidden");
+          
+          await DatabaseManager.updateOrderStatus(orderId, "Cancelled");
+          currentOrder.status = "Cancelled";
+          
+          document.getElementById("order-loading").classList.add("hidden");
+          document.getElementById("order-confirmation-content").classList.remove("hidden");
+          
+          renderOrderDetails();
+        }
+      });
+    });
+
+    function showError(message) {
+      document.getElementById("order-loading").classList.add("hidden");
+      document.getElementById("order-not-found").classList.remove("hidden");
+      document.getElementById("missing-order-id-label").textContent = message;
+    }
+
+    function showSimulatedEmail(emailData) {
+      const box = document.getElementById("simulated-email-box");
+      box.classList.remove("hidden");
+
+      document.getElementById("email-to-label").textContent = `To: ${emailData.email}`;
+      document.getElementById("email-subject-label").textContent = `Subject: Adepa Market Order Confirmed • #${emailData.orderId}`;
+      document.getElementById("email-hello-label").textContent = `Hello ${emailData.name},`;
+      document.getElementById("email-paid-label").textContent = `Paid Amount: GHS ${emailData.total.toFixed(2)}`;
+    }
+
+    function renderOrderDetails() {
+      document.getElementById("order-id-title").textContent = `Order #${currentOrder.id}`;
+      document.getElementById("order-ship-name").textContent = currentOrder.shipping.fullName;
+      document.getElementById("order-ship-address").textContent = currentOrder.shipping.address;
+      document.getElementById("order-ship-city").textContent = `${currentOrder.shipping.city}, Ghana`;
+
+      const payMethodLabel = currentOrder.payment.method === "stripe" ? "Credit Card" : (currentOrder.payment.method === "paystack" ? "Paystack Portal" : "Mobile Money");
+      document.getElementById("order-pay-method").textContent = `Method: ${payMethodLabel}`;
+      document.getElementById("order-pay-details").textContent = `Details: ${currentOrder.payment.details}`;
+      document.getElementById("order-grandtotal").textContent = `Grand Total: GHS ${currentOrder.totals.grandTotal.toFixed(2)}`;
+
+      // Cancel button rendering
+      const cancelBtn = document.getElementById("cancel-order-btn");
+      const cancelBadge = document.getElementById("order-cancelled-badge");
+      const stepsContainer = document.getElementById("tracking-steps-container");
+
+      if (currentOrder.status === "Cancelled") {
+        cancelBtn.classList.add("hidden");
+        cancelBadge.classList.remove("hidden");
+        stepsContainer.classList.add("hidden");
+      } else {
+        cancelBadge.classList.add("hidden");
+        stepsContainer.classList.remove("hidden");
+        
+        if (currentOrder.status === "Processing") {
+          cancelBtn.classList.remove("hidden");
+        } else {
+          cancelBtn.classList.add("hidden");
+        }
+
+        renderTrackingSteps();
+      }
+
+      // Render items
+      const itemsList = document.getElementById("order-items-list");
+      itemsList.innerHTML = "";
+      currentOrder.items.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "flex justify-between items-center text-xs";
+        row.innerHTML = `
+          <div>
+            <p class="font-bold text-stone-800">${item.name}</p>
+            <p class="text-[9px] text-stone-400">Qty: ${item.quantity} • by ${item.vendor}</p>
+          </div>
+          <span class="font-bold text-stone-900">GHS ${(item.price * item.quantity).toFixed(2)}</span>
+        `;
+        itemsList.appendChild(row);
+      });
+    }
+
+    function renderTrackingSteps() {
+      const steps = ["Processing", "Shipped", "Delivered"];
+      const currentStepIdx = steps.indexOf(currentOrder.status);
+
+      const stepsBar = document.getElementById("steps-bar");
+      stepsBar.style.width = `${(currentStepIdx / 2) * 100}%`;
+
+      // Update dots and labels
+      for (let i = 0; i < 3; i++) {
+        const dot = document.getElementById(`step-${i}-dot`);
+        const label = document.getElementById(`step-${i}-label`);
+
+        if (i <= currentStepIdx) {
+          dot.className = "w-7 h-7 rounded-full flex items-center justify-center border bg-terracotta border-terracotta text-white transition-all duration-300";
+          label.className = "text-[9px] font-bold mt-1 text-stone-850 transition-all";
+        } else {
+          dot.className = "w-7 h-7 rounded-full flex items-center justify-center border bg-white border-stone-200 text-stone-400 transition-all duration-300";
+          label.className = "text-[9px] font-bold mt-1 text-stone-400 transition-all";
+        }
+      }
+    }
+  </script>
+</body>
+</html>
