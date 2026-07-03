@@ -949,7 +949,7 @@ async function loadEnvFile() {
     const response = await fetch(".env");
     if (!response.ok) return;
     const text = await response.text();
-    text.split("\n").forEach(line => {
+    text.split(/\r?\n/).forEach(line => {
       const parts = line.split("=");
       if (parts.length >= 2) {
         const key = parts[0].trim();
